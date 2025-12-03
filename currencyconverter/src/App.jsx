@@ -1,5 +1,6 @@
 
-import Header from './components/Header'
+import LandingPage from './components/LandingPage'
+import UserInput from './components/UserInput'
 import './index.css'
 
 function App() {
@@ -8,7 +9,8 @@ function App() {
   return (
     <>
       <div>
-        <Header />
+        <LandingPage/>
+        <UserInput/>
       </div>
       
     </>
