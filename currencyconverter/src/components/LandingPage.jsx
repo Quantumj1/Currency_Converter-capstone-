@@ -3,7 +3,7 @@ import { Globe, ArrowRight, Zap, TrendingUp, Shield } from 'lucide-react';
 function LandingPage({ onGetStarted }) {
 
     return (
-        <div className="min-h-screen">
+    <div className="min-h-screen">
       {/* Hero Section */}
       <div className="container mx-auto px-4 py-16">
         <nav className="flex justify-between items-center mb-20">

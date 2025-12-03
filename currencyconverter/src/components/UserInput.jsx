@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Globe, ArrowRight, Zap, TrendingUp, Shield } from 'lucide-react';
 
 function UserInput() {
     const [FROM, setFrom] = useState('');
@@ -7,8 +8,8 @@ function UserInput() {
     const [exchange1, setexchange1] = useState('');
 
   return (
-    <main className="user-input p-4 bg-gray-100 rounded shadow-md mb-4">
-        <div >
+    <main className="min-h-screen">
+        <div className='grid md:grid-cols-2 gap-12 items-center mb-32'>
             <div className="mb-4">
                 <label htmlFor="FROM"></label>
                 <input
@@ -22,7 +23,7 @@ function UserInput() {
             
     
             <div className="mb-4">
-                <input
+                <select
                     type="text"
                     value={exchange}
                     onChange={(e) => setexchange(e.target.value)}
