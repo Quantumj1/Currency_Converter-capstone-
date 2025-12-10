@@ -10,7 +10,7 @@ const API_CONFIG = {
     baseCurrency: 'USD',
 };
 
-function UserInput({ onBackToHome }) {
+function UserInput() {
     //States
     const [amount, setAmount] = useState('100');
   const [fromCurrency, setFromCurrency] = useState('USD');
@@ -20,6 +20,11 @@ function UserInput({ onBackToHome }) {
     const [lastUpdated, setLastUpdated] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+
+    const navigate = useNavigate();
+    const onBackToHome = () => {
+    navigate('/');
+  };
 
 
     // Function to fetch exchange rates

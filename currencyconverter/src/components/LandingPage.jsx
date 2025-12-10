@@ -1,6 +1,12 @@
 import { Globe, ArrowRight, Zap, TrendingUp, Shield } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
-function LandingPage({ onGetStarted }) {
+function LandingPage() {
+  const navigate = useNavigate();
+  const onGetStarted = () => {
+    navigate('/userInput');
+  };
+
 
     return (
     <div className="min-h-screen">
