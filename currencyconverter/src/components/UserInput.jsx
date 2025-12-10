@@ -2,20 +2,14 @@ import React, { useState, useEffect } from 'react';
 import { Globe, ArrowRight, Zap, TrendingUp, Shield, Home, RefreshCw, AlertCircle, ArrowLeftRight } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
-//API Configuration
-const API_CONFIG = {
-    enabled: true,
-    url: 'https://api.exchangerate-api.com/v4/latest/USD',
-    apiKey: '',
-    baseCurrency: 'USD',
-};
+//API HERE
 
 function UserInput() {
     //States
-    const [amount, setAmount] = useState('100');
-  const [fromCurrency, setFromCurrency] = useState('USD');
-  const [toCurrency, setToCurrency] = useState('EUR');
-  const [convertedAmount, setConvertedAmount] = useState(0);
+    const [amount, setAmount] = useState();
+    const [fromCurrency, setFromCurrency] = useState('USD');
+    const [toCurrency, setToCurrency] = useState('EUR');
+    const [convertedAmount, setConvertedAmount] = useState();
     const [exchangeRates, setExchangeRates] = useState({});
     const [lastUpdated, setLastUpdated] = useState(null);
     const [loading, setLoading] = useState(true);
@@ -27,74 +21,7 @@ function UserInput() {
   };
 
 
-    // Function to fetch exchange rates
-    const fetchExchangeRates = async () => {
-        setLoading(true);
-        setError(null);
-        try {
-            const headers = {
-                'Content-Type': 'application/json',
-            };
-            if (API_CONFIG.apiKey) {
-                headers['Authorization'] = `Bearer ${API_CONFIG.apiKey}`;
-            }
 
-            const response = await fetch(API_CONFIG.url, {
-                method: 'GET',
-                headers,
-            });
-
-            if (!response.ok) {
-                throw new Error(`Error fetching exchange rates: ${response.status} ${response.statusText}`);
-            }
-
-            const data = await response.json();
-            console.log('Exchange Rates Data:', data);
-
-            const rates = (data && data.rates) ? data.rates : {};
-            if (!rates[API_CONFIG.baseCurrency]) {
-                rates[API_CONFIG.baseCurrency] = 1;
-            }
-
-            setExchangeRates(rates);
-            setLastUpdated(new Date());
-            setLoading(false);
-            setError(null);
-        } catch (err) {
-            console.error('Failed to fetch exchange rates:', err);
-            setError(err instanceof Error ? err.message : String(err));
-            setLoading(false);
-        }
-    };
-
-    // Fetch exchange rates on mount
-    useEffect(() => {
-        if (!API_CONFIG.enabled) return;
-        fetchExchangeRates();
-    }, []);
-
-useEffect(() => {
-    if (Object.keys(exchangeRates).length === 0) return;
-    
-    const numAmount = parseFloat(amount) || 0;
-    const fromRate = exchangeRates[fromCurrency];
-    const toRate = exchangeRates[toCurrency];
-    
-    if (fromRate && toRate) {
-      const result = (numAmount / fromRate) * toRate;
-      setConvertedAmount(result);
-    }
-  }, [amount, fromCurrency, toCurrency, exchangeRates]);
-
-  const handleSwapCurrencies = () => {
-    setFromCurrency(toCurrency);
-    setToCurrency(fromCurrency);
-  };
-
-  const currencies = Object.keys(exchangeRates).sort();
-  const rate = exchangeRates[fromCurrency] && exchangeRates[toCurrency]
-    ? (exchangeRates[toCurrency] / exchangeRates[fromCurrency]).toFixed(4)
-    : '0';
 
 
     // Common currency names
