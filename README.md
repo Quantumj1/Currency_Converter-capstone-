@@ -37,7 +37,7 @@ A modern, responsive currency converter web application built with React and Vit
 
 1. **Clone the repository**
    ```bash
-   git clone <repository-url>
+   git clone <https://github.com/Quantumj1/Currency_Converter-capstone-.git>
    cd currencyconverter
    ```
 
@@ -49,7 +49,7 @@ A modern, responsive currency converter web application built with React and Vit
 3. **Configure API (Optional)**
    - The app uses ExchangeRate-API by default (free tier)
    - For production use, consider upgrading to a paid API plan
-   - API configuration can be modified in `src/components/UserInput.jsx`
+   - API configuration can be modified in `src/api/exchangeAPI.js`
 
 4. **Start the development server**
    ```bash
