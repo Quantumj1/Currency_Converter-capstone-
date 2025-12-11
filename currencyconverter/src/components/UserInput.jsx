@@ -1,59 +1,105 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useMemo } from 'react';
 import { Globe, ArrowRight, Zap, TrendingUp, Shield, Home, RefreshCw, AlertCircle, ArrowLeftRight } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-
-//API HERE
+import { useQuery } from '@tanstack/react-query';
+import { fetchRatesForBase } from '../api/exchangeApi';
 
 function UserInput() {
-    //States
-    const [amount, setAmount] = useState();
-    const [fromCurrency, setFromCurrency] = useState('USD');
-    const [toCurrency, setToCurrency] = useState('EUR');
-    const [convertedAmount, setConvertedAmount] = useState();
-    const [exchangeRates, setExchangeRates] = useState({});
-    const [lastUpdated, setLastUpdated] = useState(null);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(null);
+  // States
+  const [amount, setAmount] = useState('100');
+  const [fromCurrency, setFromCurrency] = useState('USD');
+  const [toCurrency, setToCurrency] = useState('EUR');
 
-    const navigate = useNavigate();
-    const onBackToHome = () => {
-    navigate('/');
+  const navigate = useNavigate();
+  const onBackToHome = () => navigate('/');
+
+  const apiEnabled = true; // controlled by env in exchangeApi
+
+  // React Query: fetch rates for the chosen base (fromCurrency)
+  const {
+    data: fetchedRates,
+    isLoading,
+    isError,
+    error,
+    refetch,
+    isFetching,
+  } = useQuery({
+    queryKey: ['rates', fromCurrency],
+    queryFn: () => fetchRatesForBase(fromCurrency),
+    enabled: apiEnabled,
+    placeholderData: (previousData) => previousData,
+  });
+
+
+
+
+
+  // Normalize fetched rates to uppercase keys and ensure base exists
+  const exchangeRates = useMemo(() => {
+    const out = {};
+    if (!fetchedRates) return out;
+    for (const [k, v] of Object.entries(fetchedRates)) {
+      out[k.toUpperCase()] = Number(v);
+    }
+    // ensure base has rate 1
+    out[fromCurrency.toUpperCase()] = out[fromCurrency.toUpperCase()] ?? 1;
+    return out;
+  }, [fetchedRates, fromCurrency]);
+
+  // Compute converted amount
+  const convertedAmount = useMemo(() => {
+    const num = parseFloat(amount) || 0;
+    const toRate = exchangeRates[toCurrency];
+    return toRate !== undefined ? num * Number(toRate) : 0;
+  }, [amount, toCurrency, exchangeRates]);
+
+  // Common currency names
+  const currencyNames = useMemo(() => ({
+    USD: 'US Dollar',
+    EUR: 'Euro',
+    GBP: 'British Pound',
+    JPY: 'Japanese Yen',
+    AUD: 'Australian Dollar',
+    CAD: 'Canadian Dollar',
+    CHF: 'Swiss Franc',
+    CNY: 'Chinese Yuan',
+    INR: 'Indian Rupee',
+    MXN: 'Mexican Peso',
+    BRL: 'Brazilian Real',
+    ZAR: 'South African Rand',
+    KRW: 'South Korean Won',
+    SGD: 'Singapore Dollar',
+    NZD: 'New Zealand Dollar',
+    SEK: 'Swedish Krona',
+    NOK: 'Norwegian Krone',
+    DKK: 'Danish Krone',
+    PLN: 'Polish Zloty',
+    THB: 'Thai Baht',
+    RUB: 'Russian Ruble',
+    HKD: 'Hong Kong Dollar',
+    TRY: 'Turkish Lira',
+    IDR: 'Indonesian Rupiah',
+    MYR: 'Malaysian Ringgit',
+    PHP: 'Philippine Peso',
+    VND: 'Vietnamese Dong',
+  }), []);
+
+  // Available currencies: use fetched rates if available, otherwise fallback to currencyNames
+  const availableCurrencies = useMemo(() => {
+    return Object.keys(exchangeRates).length > 0 ? Object.keys(exchangeRates) : Object.keys(currencyNames);
+  }, [exchangeRates, currencyNames]);
+  const loading = isLoading || isFetching;
+  const fetchError = isError ? (error instanceof Error ? error.message : String(error)) : null;
+
+  // Function to swap currencies
+  const handleSwapCurrencies = () => {
+    const temp = fromCurrency;
+    setFromCurrency(toCurrency);
+    setToCurrency(temp);
   };
 
 
 
-
-
-    // Common currency names
-    const currencyNames = {
-        USD: 'US Dollar',
-        EUR: 'Euro',
-        GBP: 'British Pound',
-        JPY: 'Japanese Yen',
-        AUD: 'Australian Dollar',
-        CAD: 'Canadian Dollar',
-        CHF: 'Swiss Franc',
-        CNY: 'Chinese Yuan',
-        INR: 'Indian Rupee',
-        MXN: 'Mexican Peso',
-        BRL: 'Brazilian Real',
-        ZAR: 'South African Rand',
-        KRW: 'South Korean Won',
-        SGD: 'Singapore Dollar',
-        NZD: 'New Zealand Dollar',
-        SEK: 'Swedish Krona',
-        NOK: 'Norwegian Krone',
-        DKK: 'Danish Krone',
-        PLN: 'Polish Zloty',
-        THB: 'Thai Baht',
-        RUB: 'Russian Ruble',
-        HKD: 'Hong Kong Dollar',
-        TRY: 'Turkish Lira',
-        IDR: 'Indonesian Rupiah',
-        MYR: 'Malaysian Ringgit',
-        PHP: 'Philippine Peso',
-        VND: 'Vietnamese Dong',
-    };
   return (
     <div className="min-h-screen">
       <div className="container mx-auto px-4 py-8">
@@ -79,7 +125,7 @@ function UserInput() {
               Currency Converter
             </h1>
             <button
-              onClick={fetchExchangeRates}
+              onClick={() => refetch()}
               disabled={loading}
               className="flex items-center gap-2 px-4 py-2 text-indigo-600 hover:text-indigo-700 transition-colors disabled:opacity-50"
               title="Refresh rates"
@@ -90,13 +136,13 @@ function UserInput() {
           </div>
 
           {/* Error Message */}
-          {error && (
+          {fetchError && (
             <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6 flex items-start gap-3">
               <AlertCircle className="w-5 h-5 text-red-600 mt-0.5 flex-shrink-0" />
               <div>
-                <p className="text-red-800">{error}</p>
+                <p className="text-red-800">{fetchError}</p>
                 <button
-                  onClick={fetchExchangeRates}
+                  onClick={() => refetch()}
                   className="text-red-600 hover:text-red-700 underline mt-2"
                 >
                   Try again
@@ -106,7 +152,7 @@ function UserInput() {
           )}
 
           {/* Loading State */}
-          {loading && !error && (
+          {loading && !fetchError && (
             <div className="bg-white rounded-2xl shadow-xl p-8 text-center">
               <div className="flex justify-center mb-4">
                 <RefreshCw className="w-8 h-8 text-indigo-600 animate-spin" />
@@ -116,10 +162,10 @@ function UserInput() {
           )}
 
           {/* Converter Form */}
-          {!loading && (
+      {!loading && !fetchError && (
             <div className="bg-white rounded-2xl shadow-xl p-8">
               {/* API Status Badge */}
-              {!API_CONFIG.enabled && (
+        {!apiEnabled && (
                 <div className="mb-4 bg-yellow-50 border border-yellow-200 rounded-lg p-3 text-center">
                   <p className="text-yellow-800">
                     Using demo data. To use live rates, configure your API in ConverterPage.tsx
@@ -143,7 +189,7 @@ function UserInput() {
                     onChange={(e) => setFromCurrency(e.target.value)}
                     className="px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-white"
                   >
-                    {currencies.map((currency) => (
+                    {availableCurrencies.sort().map((currency) => (
                       <option key={currency} value={currency}>
                         {currency} {currencyNames[currency] ? `- ${currencyNames[currency]}` : ''}
                       </option>
@@ -177,7 +223,7 @@ function UserInput() {
                     onChange={(e) => setToCurrency(e.target.value)}
                     className="px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-white"
                   >
-                    {currencies.map((currency) => (
+                    {availableCurrencies.sort().map((currency) => (
                       <option key={currency} value={currency}>
                         {currency} {currencyNames[currency] ? `- ${currencyNames[currency]}` : ''}
                       </option>
@@ -189,19 +235,14 @@ function UserInput() {
               {/* Exchange Rate Info */}
               <div className="bg-indigo-50 rounded-lg p-4 text-center">
                 <p className="text-gray-700">
-                  1 {fromCurrency} = {rate} {toCurrency}
+                  1 {fromCurrency} = {exchangeRates[toCurrency] ? Number(exchangeRates[toCurrency]).toFixed(4) : '0'} {toCurrency}
                 </p>
-                {lastUpdated && (
-                  <p className="text-gray-500">
-                    Last updated: {lastUpdated.toLocaleTimeString()}
-                  </p>
-                )}
               </div>
             </div>
           )}
 
           {/* Quick Convert Options */}
-          {!loading && !error && (
+          {!loading && !fetchError && (
             <div className="mt-8 grid grid-cols-2 md:grid-cols-4 gap-4">
               {[100, 500, 1000, 5000].map((value) => (
                 <button
