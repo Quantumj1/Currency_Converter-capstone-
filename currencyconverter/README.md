@@ -1,8 +1,8 @@
-# CurrencySwap - Real-Time Currency Converter
+# Currency Converter - Real-Time Currency Converter
 
 A modern, responsive currency converter web application built with React and Vite. Get real-time exchange rates for over 150 currencies worldwide with an intuitive and fast user interface.
 
-![CurrencySwap Preview](https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=800&q=80)
+![Currency Converter Preview](https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=800&q=80)
 
 ##  Features
 
@@ -23,7 +23,9 @@ A modern, responsive currency converter web application built with React and Vit
 - **Routing**: React Router DOM
 - **Styling**: Tailwind CSS
 - **Icons**: Lucide React
-- **API**: ExchangeRate-API (free tier)
+- **HTTP Client**: Axios
+- **State Management**: TanStack Query (React Query)
+- **API**: CurrencyAPI (free tier)
 - **Linting**: ESLint
 
 ##  Prerequisites
@@ -73,13 +75,13 @@ A modern, responsive currency converter web application built with React and Vit
 
 ##  API Configuration
 
-The application uses ExchangeRate-API for real-time exchange rates. Configuration is located in `src/components/UserInput.jsx`:
+The application uses ExchangeRate-API for real-time exchange rates. Configuration is located in `src/api/exchangeAPI.js`:
 
 ```javascript
 const API_CONFIG = {
     enabled: true,
-    url: 'https://api.exchangerate-api.com/v4/latest/USD',
-    apiKey: '', // Add your API key here if using paid tier
+    url: 'https://api.currencyapi.com/v3/latest?apikey=cur_live_sz5m7BR4dg86NwHyIxq7Eaw3EFgrvSoRGJgFgwhk',
+    apiKey: 'cur_live_sz5m7BR4dg86NwHyIxq7Eaw3EFgrvSoRGJgFgwhk', // Add your API key here if using paid tier
     baseCurrency: 'USD',
 };
 ```
@@ -88,6 +90,11 @@ const API_CONFIG = {
 - **Free Tier**: Limited to USD as base currency
 - **Paid Tier**: Access to all base currencies and higher rate limits
 
+
+
+- `VITE_EXCHANGE_URL`: The base URL for the currency API (defaults to the free tier URL if not set)
+- `VITE_EXCHANGE_API_KEY`: Your CurrencyAPI key (optional for free tier, required for paid tier)
+
 ##  Project Structure
 
 ```
@@ -95,6 +102,8 @@ currencyconverter/
 ├── public/
 │   └── vite.svg
 ├── src/
+│   ├── api/
+│   │   └── exchangeApi.js
 │   ├── assets/
 │   │   ├── currencylogo.png
 │   │   └── react.svg
@@ -132,13 +141,13 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ##  Acknowledgments
 
-- Exchange rates provided by [ExchangeRate-API](https://exchangerate-api.com)
+- Exchange rates provided by [currencyapi.com](https://currencyapi.com/)
 - Icons by [Lucide React](https://lucide.dev)
 - UI inspiration from modern currency converter applications
 
 ##  Support
 
-If you have any questions or issues, please open an issue on GitHub or contact the development team.
+If you have any questions or issues, please open an issue on GitHub or me.
 
 ---
 
